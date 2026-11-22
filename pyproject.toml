@@ -15,7 +15,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
 ]
-dependencies = ["fastcore", "fastgws", "jupyasyncclient>=0.2.28"]
+dependencies = ["fastcore", "fastgws", "google-colab-cli", "jupyasyncclient>=0.2.28"]
 
 [project.urls]
 Repository = "https://github.com/AnswerDotAI/fastcolab"
