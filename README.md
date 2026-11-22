@@ -51,7 +51,7 @@ Google exposes two official interfaces under `colaboratory.googleapis.com`. The 
 
 The hosted MCP server adds four kernel tools (`create_session`, `list_sessions`, `delete_session`, `execute_code`) with stateless `executionId` reattachment across 600-second HTTP cutoffs. In exchange, MCP buffers output as text only and truncates large logs. It omits images and requires repeated 600-second requests for multi-hour runs. Driving REST plus the Jupyter proxy avoids those constraints.
 
-Neither REST nor MCP exposes your live credit balance (`get_subscription` returns only the tier, such as `SUBSCRIPTION_TIER_PRO_PLUS`). To inspect live balance and burn rate, run `colab usage` from `google-colab-cli`. That command queries Colab’s older `/tun/m/ccu-info` endpoint.
+Neither REST nor MCP exposes your live credit balance (`get_subscription` returns only the tier, such as `SUBSCRIPTION_TIER_PRO_PLUS`). `fastcolab.extras` adds [`Colab.usage()`](https://AnswerDotAI.github.io/fastcolab/extras.html#colab.usage) against Colab’s `/tun/m/ccu-info` endpoint to read live balance and hourly burn rate directly from Python.
 
 ## Getting started
 
@@ -71,67 +71,86 @@ gclientid-auth you@gmail.com --preset colab
 
 `gclientid` stores tokens per email at `~/.config/gclientid/oauth-token-<email>.json`. Authorizing a personal `@gmail.com` account leaves existing Workspace tokens untouched.
 
-Connect from Python with `fastgws` by loading the Colab discovery documents directly via `GWSApi.from_discovery_url`. Plain `GWSApi('colaboratory', version='v1beta', creds=creds)` returns an empty client with no operations because `colaboratory` is absent from Google’s central discovery directory.
+Set `FASTCOLAB_ACCOUNT` in your shell to the authorized email (`export FASTCOLAB_ACCOUNT=you@gmail.com`) so the examples below pick it up automatically.
+
+### Starting a runtime and running code
+
+`fastcolab.core` wraps both Colab discovery documents, waits on long-running runtime creation, refreshes expired proxy tokens automatically, and transfers files over HTTP or Google Drive.
 
 ``` python
-from fastgws.core import GWSApi, oauth_creds
+import os
+from pathlib import Path
+from fastcolab.core import Colab, outs_text
 
-creds = await oauth_creds(account='you@gmail.com', scopes=['https://www.googleapis.com/auth/colaboratory'])
-colab = await GWSApi.from_discovery_url('https://colaboratory.googleapis.com/$discovery/rest?version=v1beta', creds=creds)
-ops = await GWSApi.from_discovery_url('https://colaboratory.googleapis.com/$discovery/rest?version=v1', creds=creds)
+c = await Colab.connect(account=os.environ['FASTCOLAB_ACCOUNT'])
+await c.specs()
+
+async with await c.start('g4') as rt:
+    outs = await rt.exec("import torch; torch.cuda.get_device_name(0)")
+    print(outs_text(outs))
+    await rt.upload(Path('train.py'), 'content/train.py')
+    await rt.from_drive('my-dataset', 'content/data')
+    await rt.to_drive('content/out.json', 'my-results')
 ```
 
-Verify credentials and inspect eligible runtimes without allocating a machine:
+`start` accepts short hardware aliases (`'cpu'`, `'t4'`, `'l4'`, `'g4'`, `'h100'`, `'v6e1'`) and enables `SHAPE_HIGHMEM` automatically where available. Entering the runtime with `async with` deletes the machine on exit so idle credits do not burn. `rt.exec` reuses a persistent remote kernel across calls. `rt.upload` creates missing parent directories and chunks files larger than 32 MB automatically. `from_drive` and `to_drive` move files between Google Drive and the runtime using your `gclientid` credentials, with no interactive browser mount.
+
+### Long-running detached jobs
+
+Colab reclaims a runtime after roughly 90 minutes with an idle Jupyter kernel. Spawning a `nohup` background process and letting its cell exit leaves the kernel idle and risks teardown. `rt.launch` runs your script inside a dedicated busy kernel cell, logs output to disk, and closes the local WebSocket once execution begins.
 
 ``` python
-await colab.v1beta.get_subscription(name='subscription')
-await colab.runtimespecs.list()
-await colab.runtimes.list()
+rt = await c.start('g4')
+job = await rt.launch(Path('train.py').read_text(), log='content/train.log')
+rc = await job.wait(poll=5.0, on_log=lambda s: print(s, end=''))
+await rt.stop()
 ```
 
-Connect `jupyasyncclient` to `runtime.connectionInfo` with `X-Colab-Runtime-Proxy-Token`. Pass a `refresh_headers` callback to fetch a fresh token when reconnects outlive the 1-hour expiry:
+[`ColabJob`](https://AnswerDotAI.github.io/fastcolab/core.html#colabjob) polls `/api/kernels/{id}` and tails new log bytes over HTTP `Range` requests, refreshing the roughly 1-hour proxy token automatically. You can also call `await job.status()` and `await job.tail()` directly from another process or after waking a laptop. Save checkpoints periodically to Google Drive or Google Cloud Storage in case the machine hits the 24-hour cap or gets reclaimed.
+
+### Fast repeatable environments
+
+Consumer Colab boots Google’s fixed base image (PyTorch, CUDA, JAX, and `uv` preinstalled) rather than custom Docker containers. Importing `fastcolab.envs` patches environment helpers onto [`ColabRuntime`](https://AnswerDotAI.github.io/fastcolab/core.html#colabruntime) for lockfile installs, portable virtual environments, and warm runtime reuse.
 
 ``` python
-from jupyasyncclient import JupyAsyncKernelClient
+import fastcolab.envs
+from fastcolab.envs import compile_reqs
 
-async def refresh():
-    rt = await colab.runtimes.get(name=runtime.name)
-    return {'X-Colab-Runtime-Proxy-Token': rt.connectionInfo.token}
+lock = compile_reqs(['timm', 'datasets'])
+await rt.install(reqs=lock, no_deps=True)
 
-hdrs = {'X-Colab-Runtime-Proxy-Token': runtime.connectionInfo.token}
-kc = await JupyAsyncKernelClient.connect(runtime.connectionInfo.url, headers=hdrs, refresh_headers=refresh)
+await rt.create_venv('/content/env', ['einops'])
+await rt.save_venv('colab-envs', '/content/env', 'env.tar.gz')
+await rt.load_venv('colab-envs', 'env.tar.gz', '/content/env')
+await rt.restart()
 ```
 
-## Running long training jobs
+[`compile_reqs`](https://AnswerDotAI.github.io/fastcolab/envs.html#compile_reqs) resolves versions locally with `uv pip compile` so `rt.install` skips remote resolution and installs through `uv pip install --system`. For stacks that clash with Colab’s system packages, `create_venv` and `save_venv` build and archive an isolated virtual environment once on Colab. `load_venv` restores that archive from Google Drive on later runs. Run inside the restored environment with `rt.venv_exec` or add it to the live kernel with `rt.activate_venv`. During rapid iteration, `rt.restart()` or `rt.fresh_kernel()` resets memory while keeping `/content` and installed packages intact.
 
-Colab disconnects a runtime after roughly 90 minutes with an idle Jupyter kernel. If you spawn a detached `nohup` process and let the cell finish, the kernel sits idle and Colab can reap the machine even on Ultra or Pro+. Keep training inside an executing cell instead.
+### Usage, shell commands, directory sync, and one-shot scripts
 
-1.  Create a runtime with `v1beta.runtimes.create` and wait on the returned operation via `v1.operations.wait` (or poll `v1.operations.get`).
-2.  Upload your training script via `JupyAsyncFilesClient` or `PUT {url}/api/contents/{path}`.
-3.  Open a kernel on `connectionInfo.url`, submit a cell that runs training with stdout and stderr flushed to `/content/train.log` and writes the exit code to `/content/train.exit` on completion, then close the local WebSocket with `aclose()` (`shutdown_kernel=False`). The remote kernel stays busy and holds the machine open for up to 24 hours with no client connected.
-4.  To check progress later, call `v1beta.runtimes.get` for a fresh proxy token, tail new log bytes via `GET {url}/files/content/train.log` with header `Range: bytes=<offset>-`, and check completion via `GET {url}/api/kernels/{kernel_id}` (`execution_state`) or `/content/train.exit`.
-5.  Sync checkpoints periodically to Google Cloud Storage or Google Drive from inside the training script, download remaining local files via `GET {url}/files/{path}`, and call `v1beta.runtimes.delete`.
+Importing `fastcolab.extras` adds the remaining operational helpers onto [`Colab`](https://AnswerDotAI.github.io/fastcolab/core.html#colab) and [`ColabRuntime`](https://AnswerDotAI.github.io/fastcolab/core.html#colabruntime): live credit balance, browser links, shell commands, directory sync, remote script or notebook runners, and bulk cleanup.
 
-## Developer reference
+``` python
+import fastcolab.extras
 
-### REST endpoints and runtime specs
+await c.usage()
+rt.browser_url(open_browser=True)
+await rt.sh('nvidia-smi')
+await rt.sys_info()
+await rt.upload_dir('src', '/content/src')
 
-`v1beta` exposes `runtimes.create`, `runtimes.get`, `runtimes.list`, `runtimes.delete`, `runtimespecs.list`, and `v1beta.getSubscription`. `v1` exposes `operations.get`, `operations.list`, and `operations.wait`. Both versions require only the `https://www.googleapis.com/auth/colaboratory` scope (or `colaboratory.readonly`), without the `userinfo.email` and `cloud-platform` scopes required by `google-colab-cli`’s older session backend.
+res = await c.run_script('train.py', hw='g4', download={'content/out.pt': 'out.pt'})
+await c.stop_all()
+```
 
-`runtimespecs.list` returns `(variant, accelerator, shape)` keys covering `DEFAULT`/`NONE` (`STANDARD`, `HIGHMEM`), `GPU` (`T4` `STANDARD` and `HIGHMEM`, `L4` `STANDARD`, `A100` `STANDARD` and `HIGHMEM`, `G4` `STANDARD`, `H100` `STANDARD`), and `TPU` (`V5E1` `STANDARD`, `V6E1` `STANDARD`).
+`c.usage()` reads your live balance and hourly burn rate from `/tun/m/ccu-info` using your existing `gclientid` token. `rt.browser_url()` opens a live runtime in your browser without allocating a second machine. `rt.upload_dir` and `rt.download_dir` sync folders as a single tarball (skipping `.git`, `__pycache__`, `.venv`, and `node_modules`). `c.run_script` provisions a machine, runs a local Python file with optional uploads and downloads, and deletes the runtime in a `finally` block. `rt.run_nb` executes a local `.ipynb` remotely and writes outputs back.
 
-### Proxy authentication, expiry, and Jupyter behavior
+## Technical notes
 
-Passing `X-Colab-Runtime-Proxy-Token: {token}` alone authenticates both HTTP requests and verified `wss://` WebSocket connections to `connectionInfo.url`. You do not need the `colab-runtime-proxy-token` query parameter or the `X-Colab-Client-Agent` header. Proxy tokens expire after roughly one hour (`connectionInfo.expireTime`) and fail with HTTP 404 on both HTTP and WebSockets rather than 401. Call `v1beta.runtimes.get` to refresh the token before reconnecting.
+Four low-level findings from building `fastcolab` are not yet documented inside `00_core`, `01_envs`, or `02_extras`:
 
-Colab exposes kernelspecs `['julia', 'python3', 'ir']`. Passing `name="py"` to `POST /api/kernels` returns HTTP 500, while omitting `name` (or passing `"python3"`) selects Python 3. Colab speaks standard legacy JSON WebSocket frames (not `v1.kernel.websocket.jupyter.org`) and sends custom `colab_request` messages that clients can safely ignore. `JupyAsyncTerminalClient` is incompatible with Colab because it uses jupygate’s `/api/terminals/{name}/channel` binary protocol instead of Jupyter’s `/terminals/websocket/{name}`.
-
-### File transfer protocol
-
-Paths on `connectionInfo.url` omit the leading slash (`content/train.py` for `/content/train.py`). `JupyAsyncFilesClient` (`listing`, text and binary `write` and `read`, `mkdir`, `rename`, and `delete`) works unmodified against Colab’s `/api/contents`.
-
-For raw HTTP uploads, send `PUT {url}/api/contents/{path}` with `{"type": "file", "format": "base64", "content": "..."}` (or `"format": "text"`). Keep each request under 50 MB and send larger files as sequential pieces with `"chunk": 1`, `2`, and `"chunk": -1` on the final piece. Create missing parent directories one level per request with `{"type": "directory"}`. For raw downloads and incremental log tailing, `GET {url}/files/{path}` returns raw bytes and supports HTTP `Range` requests (HTTP 206).
-
-### CLI fallback and live credit balance
-
-For quick terminal checks or live compute unit balance without a Google Cloud project, install `google-colab-cli` (`uv tool install google-colab-cli`) and run `colab --auth=oauth2 whoami` and `colab --auth=oauth2 usage`. `colab usage` calls `colab_cli.client.Client.get_consumption_user_info()` against Colab’s `/tun/m/ccu-info` tunnel endpoint. Its bundled OAuth client (`projects/764086051850`) cannot call `colaboratory.googleapis.com` directly without a separate quota project.
+- `v1beta` and `v1` also accept the read-only scope `https://www.googleapis.com/auth/colaboratory.readonly` when a caller only needs `get_subscription`, `runtimespecs.list`, or `runtimes.list`.
+- Passing `X-Colab-Runtime-Proxy-Token` alone authenticates both HTTP and verified `wss://` WebSocket calls to `connectionInfo.url` (no `colab-runtime-proxy-token` query parameter or `X-Colab-Client-Agent` header is needed on the proxy). Colab exposes kernelspecs `['julia', 'python3', 'ir']` (`name="py"` returns HTTP 500, while omitting `name` selects Python 3), speaks legacy JSON WebSocket frames rather than `v1.kernel.websocket.jupyter.org`, and emits custom `colab_request` frames that clients can ignore.
+- `JupyAsyncTerminalClient` is incompatible with Colab because it uses jupygate’s `/api/terminals/{name}/channel` binary protocol instead of Jupyter’s `/terminals/websocket/{name}`.
+- For quick terminal checks without a Google Cloud project, `google-colab-cli` (`uv tool install google-colab-cli`) provides `colab --auth=oauth2 whoami` and `colab --auth=oauth2 usage`. Its bundled OAuth client (`projects/764086051850`) cannot call `colaboratory.googleapis.com` without a separate quota project.
