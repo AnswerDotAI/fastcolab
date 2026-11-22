@@ -1,0 +1,14 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "fastcolab"
+  site-url: "https://AnswerDotAI.github.io/fastcolab"
+  description: "Convenient access to the colab API"
+  repo-branch: main
+  repo-url: "https://github.com/AnswerDotAI/fastcolab"
+
+format-links:
+  - html
+  - format: commonmark
+    text: Markdown

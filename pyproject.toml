@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fastcolab"
+dynamic = ["version"]
+description = "Convenient access to the colab API"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [{name = "Jeremy Howard", email = "github@jhoward.fastmail.fm"}]
+keywords = ['nbdev']
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = ["fastcore", "fastgws", "jupyasyncclient>=0.2.28"]
+
+[project.urls]
+Repository = "https://github.com/AnswerDotAI/fastcolab"
+Documentation = "https://AnswerDotAI.github.io/fastcolab/"
+
+[project.entry-points.nbdev]
+fastcolab = "fastcolab._modidx:d"
+
+[tool.setuptools.dynamic]
+version = {attr = "fastcolab.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["fastcolab"]
+
+[tool.nbdev]
