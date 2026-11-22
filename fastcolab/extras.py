@@ -8,14 +8,14 @@ Docs: https://AnswerDotAI.github.io/fastcolab/extras.html.md"""
 __all__ = ['TUNNEL_BASE', 'DEFAULT_EXCLUDES', 'ColabUsage', 'colab_ssh']
 
 # %% ../nbs/02_extras.ipynb #56ec2ad0
-import asyncio, base64, fnmatch, io, json, shlex, shutil, tarfile, uuid, webbrowser
+import asyncio, base64, fnmatch, io, json, tarfile, uuid, webbrowser
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
 from fastcore.meta import delegates
 from fastcore.nbio import Notebook, read_nb, write_nb
 from fastcore.utils import *
-from colab_cli.state import SessionState, StateStore
+from jupyasyncclient.ssh import colab_ws_url, setup_ssh
 from fastgws.auth import refresh_creds
 from jupyasyncclient.http import http_client
 from .core import Colab, ColabRuntime, outs_text
@@ -97,45 +97,20 @@ def browser_url(
     return link
 
 # %% ../nbs/02_extras.ipynb #7a608be5
-def _has_ssh_host(cfg:str, host:str)->bool:
-    for ln in cfg.splitlines():
-        toks = ln.split('#', 1)[0].split()
-        if len(toks) > 1 and toks[0].lower() == 'host' and host in toks[1:]: return True
-    return False
-
-def _ssh_host_block(host:str, ssh_dir:Path, identity:str|None, auth:str)->str:
-    key = identity or next((f'~/.ssh/{n}' for n in ('id_ed25519', 'id_ecdsa')
-        if (ssh_dir/n).exists() and (ssh_dir/f'{n}.pub').exists()), None)
-    colab_bin = shlex.quote(shutil.which('colab') or 'colab')
-    proxy = f'{colab_bin} --auth={auth} ssh --proxy-mode -s {shlex.quote(host)}' + (f' -i {shlex.quote(key)}' if key else '')
-    lines = [f'Host {host}', '    User root', '    StrictHostKeyChecking no',
-        '    UserKnownHostsFile /dev/null', '    LogLevel ERROR', f'    ProxyCommand {proxy}']
-    if key: lines += [f'    IdentityFile {key}', '    IdentitiesOnly yes']
-    return '\n'.join(lines) + '\n'
-
 def colab_ssh(
-    rt:ColabRuntime=None, # Optional live `ColabRuntime` to register in `colab-cli` session state
-    host:str='colab', # SSH Host alias and `colab-cli` session name
+    rt:ColabRuntime=None, # Optional live `ColabRuntime` to register in the `jupyasyncclient.ssh` session store
+    host:str='colab', # SSH Host alias and session store key
     ssh_config:str|Path='~/.ssh/config', # OpenSSH config file to update if `host` is missing
     identity:str=None, # Optional `ed25519`/`ecdsa` key path (auto-detected if omitted)
-    auth:str='oauth2', # `colab-cli` auth strategy (`oauth2` or `adc`) for token refreshes
+    store:str|Path=None, # Optional session store path (defaults to `jupyasyncclient.ssh` store)
+    replace:bool=False, # Replace an existing `Host <host>` block in `ssh_config`
 )->str:
-    "Register `rt` for `colab ssh --proxy-mode` and add a `Host` entry to `~/.ssh/config` if missing."
-    if rt is not None:
-        spec = rt.spec or {}
-        st = SessionState(name=host, token=rt.token, url=rt.url, endpoint=rt.endpoint, token_expires_at=rt.expire_time,
-            variant=spec.get('variant', 'DEFAULT').removeprefix('VARIANT_'),
-            accelerator=spec.get('accelerator', 'NONE').removeprefix('ACCELERATOR_'),
-            machine_shape=spec.get('shape', 'STANDARD').removeprefix('SHAPE_'))
-        StateStore().add(st)
-    cfg_path = Path(ssh_config).expanduser()
-    cfg = cfg_path.read_text() if cfg_path.exists() else ''
-    if not _has_ssh_host(cfg, host):
-        sep = '' if not cfg else ('\n\n' if not cfg.endswith('\n') else ('' if cfg.endswith('\n\n') else '\n'))
-        cfg_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        if not cfg_path.exists(): cfg_path.touch(mode=0o600)
-        cfg_path.write_text(cfg + sep + _ssh_host_block(host, cfg_path.parent, identity, auth))
-    return f'ssh {host}'
+    "Register `rt` with `jac-ssh` and add a `Host` entry to `~/.ssh/config` if missing."
+    url = colab_ws_url(rt.url, rt.token) if rt is not None else None
+    hdrs = {'X-Colab-Client-Agent': 'colab-cli'} if rt is not None else None
+    meta = dict(endpoint=rt.endpoint, expire_time=rt.expire_time) if rt is not None else None
+    return setup_ssh(host, url, user='root', identity=identity, headers=hdrs,
+        ssh_config=ssh_config, store=store, replace=replace, meta=meta)
 
 @patch
 @delegates(colab_ssh)

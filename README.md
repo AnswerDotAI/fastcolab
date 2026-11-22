@@ -49,7 +49,7 @@ Colab gives you single-accelerator virtual machines rather than elastic clusters
 
 ### Setup with `gclientid`
 
-Give each developer their own External Google Cloud project with [`gclientid`](https://github.com/AnswerDotAI/gclientid). Separate projects isolate API quotas per person and work with both personal `@gmail.com` Ultra accounts and Workspace accounts.
+You can create an External Google Cloud project with [`gclientid`](https://github.com/AnswerDotAI/gclientid). Projects isolate API quotas per person and work with both personal `@gmail.com` Ultra accounts and Workspace accounts.
 
 1.  Create or update your External project (`gclientid` enables `colaboratory.googleapis.com` and declares the `colaboratory` scope automatically because `COLAB` is in `MAX`):
 
@@ -63,7 +63,7 @@ gclientid
 gclientid-auth you@gmail.com --preset colab
 ```
 
-`gclientid` stores one token per email at `~/.config/gclientid/oauth-token-<email>.json`. Authorizing a personal `@gmail.com` account leaves Workspace tokens untouched. Export `FASTCOLAB_ACCOUNT=you@gmail.com` in your shell so the examples below pick it up.
+`gclientid` stores one token per email at `~/.config/gclientid/oauth-token-<email>.json`. Authorizing a personal `@gmail.com` account leaves Workspace tokens untouched. Export `FASTCOLAB_ACCOUNT=you@gmail.com` in your shell.
 
 ### Setup without `gclientid`
 
@@ -147,7 +147,7 @@ await rt.restart()
 
 Colab runtimes expose native SSH through the runtime proxy (`wss://{host}/colab/ssh`) with no ngrok or external tunnel. The proxy accepts an `ed25519` or `ecdsa` public key (Colab rejects RSA keys) and opens a `root` shell over binary WebSocket frames.
 
-`rt.ssh()` (or [`colab_ssh`](https://AnswerDotAI.github.io/fastcolab/extras.html#colab_ssh), from `fastcolab.extras`) bridges that endpoint through [`google-colab-cli`](https://github.com/googlecolab/google-colab-cli)’s `colab ssh --proxy-mode`. Calling `rt.ssh()` saves the runtime’s credentials in `colab-cli`’s local session store and appends a `Host colab` block to `~/.ssh/config` when missing. It uses `~/.ssh/id_ed25519` or `~/.ssh/id_ecdsa` by default, or you can pass `identity=`.
+`rt.ssh()` (or [`colab_ssh`](https://AnswerDotAI.github.io/fastcolab/extras.html#colab_ssh), from `fastcolab.extras`) bridges that endpoint through `jupyasyncclient`’s `jac-ssh --proxy` `ProxyCommand`. Calling `rt.ssh()` saves the runtime’s WebSocket URL and token in `$XDG_CONFIG_HOME/jupyasyncclient/ssh.json` and appends a `Host colab` block to `~/.ssh/config` when missing (you can also update `~/.ssh/config` from the shell with `jac-ssh --colab`). It uses `~/.ssh/id_ed25519` or `~/.ssh/id_ecdsa` by default, or you can pass `identity=`.
 
 ``` python
 import fastcolab.extras
@@ -161,15 +161,13 @@ rsync -av ./data/ colab:/content/data/
 ssh -L 8888:localhost:8888 colab
 ```
 
-Plain `ssh`, `scp`, `rsync`, port forwarding, and Remote-SSH editors then connect straight to the running machine. No separate `colab-cli` login is needed while the runtime token stays valid (roughly one hour). Running `colab --auth=oauth2 whoami` once lets `colab-cli` refresh tokens automatically past the first hour.
+Plain `ssh`, `scp`, `rsync`, port forwarding, and Remote-SSH editors then connect straight to the running machine while the runtime token stays valid (roughly one hour). Call `rt.ssh()` again after refreshing or starting a new runtime to update the saved session.
 
 ### Usage, shell commands, directory sync, and one-shot scripts
 
 `fastcolab.extras` also patches operational helpers onto [`Colab`](https://AnswerDotAI.github.io/fastcolab/core.html#colab) and [`ColabRuntime`](https://AnswerDotAI.github.io/fastcolab/core.html#colabruntime) for live credit balance, browser links, shell commands, directory sync, remote script or notebook runners, and bulk cleanup.
 
 ``` python
-import fastcolab.extras
-
 await c.usage()
 rt.browser_url(open_browser=True)
 await rt.sh('nvidia-smi')
@@ -182,7 +180,7 @@ await c.stop_all()
 
 `c.usage()` reads your live balance and hourly burn rate from `/tun/m/ccu-info` using your existing OAuth credentials. `rt.browser_url()` opens a live runtime in your browser without allocating a second machine. `rt.upload_dir` and `rt.download_dir` sync folders as a single tarball (skipping `.git`, `__pycache__`, `.venv`, and `node_modules`). `c.run_script` provisions a machine, runs a local Python file with optional uploads and downloads, and deletes the runtime in a `finally` block. `rt.run_nb` executes a local `.ipynb` remotely and writes outputs back.
 
-## The REST API is all we need
+## The REST API is all you need
 
 Google exposes two official interfaces under `colaboratory.googleapis.com`. The [REST API](https://developers.google.com/colab/api/reference/rest) handles `runtimes`, `runtimespecs`, and `getSubscription` in `v1beta`, plus long-running `operations` in `v1`. The hosted [Model Context Protocol (MCP) server](https://developers.google.com/colab/api/reference/mcp) runs at `https://colaboratory.googleapis.com/mcp`.
 
@@ -198,5 +196,4 @@ Some other notes:
 
 - `v1beta` and `v1` also accept the read-only scope `https://www.googleapis.com/auth/colaboratory.readonly` when a caller only needs `get_subscription`, `runtimespecs.list`, or `runtimes.list`.
 - Passing `X-Colab-Runtime-Proxy-Token` alone authenticates both HTTP and verified `wss://` WebSocket calls to `connectionInfo.url` (no `colab-runtime-proxy-token` query parameter or `X-Colab-Client-Agent` header is needed on the proxy). Colab exposes kernelspecs `['julia', 'python3', 'ir']` (`name="py"` returns HTTP 500, while omitting `name` selects Python 3), speaks legacy JSON WebSocket frames rather than `v1.kernel.websocket.jupyter.org`, and emits custom `colab_request` frames that clients can ignore.
-- `JupyAsyncTerminalClient` is incompatible with Colab because it uses jupygate’s `/api/terminals/{name}/channel` binary protocol instead of Jupyter’s `/terminals/websocket/{name}`.
-- For quick terminal checks without a Google Cloud project, `google-colab-cli` (`uv tool install google-colab-cli`) provides `colab --auth=oauth2 whoami` and `colab --auth=oauth2 usage`. Its bundled OAuth client (`projects/764086051850`) cannot call `colaboratory.googleapis.com` without a separate quota project.
+- For quick terminal checks without a Google Cloud project, `google-colab-cli` provides `colab --auth=oauth2 whoami` and `colab --auth=oauth2 usage`.
