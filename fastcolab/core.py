@@ -52,8 +52,7 @@ class Colab:
         v1, # `GWSApi` client for Colab `v1` operations
         creds=None, # OAuth credentials shared with Drive
         drive=None, # Optional `GWSApi('drive', ...)` client
-    ):
-        store_attr()
+    ): store_attr()
 
     def __repr__(self): return f'Colab(drive={self.drive is not None})'
 
@@ -287,6 +286,7 @@ async def download(
     p.write_bytes(data)
     return p
 
+# %% ../nbs/00_core.ipynb #b586bbb4
 @patch
 async def tail(
     self:ColabRuntime,
