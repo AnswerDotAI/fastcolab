@@ -31,3 +31,4 @@ version = {attr = "fastcolab.__version__"}
 include = ["fastcolab"]
 
 [tool.nbdev]
+to_meta = ["export"]
