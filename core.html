@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Async Python client for Google Colab runtimes, kernels, files, and Drive transfers">
+
+<title>core – fastcolab</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f803fa4e565d46961d2a1845e6c2e3f5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="core – fastcolab">
+<meta property="og:description" content="Async Python client for Google Colab runtimes, kernels, files, and Drive transfers">
+<meta property="og:site_name" content="fastcolab">
+<meta name="twitter:title" content="core – fastcolab">
+<meta name="twitter:description" content="Async Python client for Google Colab runtimes, kernels, files, and Drive transfers">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">fastcolab</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" aria-label="Toolbar">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./core.html">core</a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Section">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">fastcolab</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./core.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">core</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./envs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">envs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./extras.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">extras</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#connecting-to-the-colab-rest-api" id="toc-connecting-to-the-colab-rest-api" class="nav-link active" data-scroll-target="#connecting-to-the-colab-rest-api">Connecting to the Colab REST API</a></li>
+  <li><a href="#choosing-hardware" id="toc-choosing-hardware" class="nav-link" data-scroll-target="#choosing-hardware">Choosing hardware</a></li>
+  <li><a href="#the-colab-client" id="toc-the-colab-client" class="nav-link" data-scroll-target="#the-colab-client">The <code>Colab</code> client</a></li>
+  <li><a href="#starting-and-listing-runtimes" id="toc-starting-and-listing-runtimes" class="nav-link" data-scroll-target="#starting-and-listing-runtimes">Starting and listing runtimes</a></li>
+  <li><a href="#refreshing-tokens-and-running-code" id="toc-refreshing-tokens-and-running-code" class="nav-link" data-scroll-target="#refreshing-tokens-and-running-code">Refreshing tokens and running code</a></li>
+  <li><a href="#transferring-files" id="toc-transferring-files" class="nav-link" data-scroll-target="#transferring-files">Transferring files</a></li>
+  <li><a href="#importing-from-and-saving-to-google-drive" id="toc-importing-from-and-saving-to-google-drive" class="nav-link" data-scroll-target="#importing-from-and-saving-to-google-drive">Importing from and saving to Google Drive</a></li>
+  <li><a href="#running-long-detached-jobs" id="toc-running-long-detached-jobs" class="nav-link" data-scroll-target="#running-long-detached-jobs">Running long detached jobs</a></li>
+  <li><a href="#stopping-runtimes-and-context-manager-cleanup" id="toc-stopping-runtimes-and-context-manager-cleanup" class="nav-link" data-scroll-target="#stopping-runtimes-and-context-manager-cleanup">Stopping runtimes and context-manager cleanup</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/AnswerDotAI/fastcolab/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="core.html.md"><i class="bi bi-file-code"></i>Markdown</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">core</h1>
+</div>
+
+<div>
+  <div class="description">
+    Async Python client for Google Colab runtimes, kernels, files, and Drive transfers
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<p>This notebook is the literate source for <code>fastcolab.core</code>, building the library from raw REST calls into a small async client.</p>
+<section id="connecting-to-the-colab-rest-api" class="level2">
+<h2 class="anchored" data-anchor-id="connecting-to-the-colab-rest-api">Connecting to the Colab REST API</h2>
+<p>Google splits Colab’s REST API across two discovery documents under <code>colaboratory.googleapis.com</code>. The <code>v1beta</code> document handles subscriptions, eligible runtime specs, and runtime lifecycle, while <code>v1</code> handles long-running operations. Because <code>colaboratory</code> is absent from Google’s central discovery directory, <code>fastgws</code> loads each document directly by URL.</p>
+<p>Authenticate with <code>oauth_creds</code> from <code>fastgws</code> using the Google account holding your Colab or Google AI Ultra subscription. Requesting both <code>COLAB_SCOPE</code> and <code>DRIVE_SCOPE</code> lets the same credentials talk to Colab and Google Drive with no browser prompts.</p>
+<div id="bfbcfa59" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>acct <span class="op">=</span> os.environ[<span class="st">'FASTCOLAB_ACCOUNT'</span>]</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>creds <span class="op">=</span> <span class="cf">await</span> oauth_creds(account<span class="op">=</span>acct, scopes<span class="op">=</span>[COLAB_SCOPE, DRIVE_SCOPE])</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>v1beta <span class="op">=</span> <span class="cf">await</span> GWSApi.from_discovery_url(COLAB_V1BETA_URL, creds<span class="op">=</span>creds)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>v1 <span class="op">=</span> <span class="cf">await</span> GWSApi.from_discovery_url(COLAB_V1_URL, creds<span class="op">=</span>creds)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Both read-only calls below run without provisioning a virtual machine or burning compute units.</p>
+<div id="63144783" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sub <span class="op">=</span> <span class="cf">await</span> v1beta.v1beta.get_subscription(name<span class="op">=</span><span class="st">'subscription'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sub</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>{<span class="st">'name'</span>: <span class="st">'subscription'</span>, <span class="st">'tier'</span>: <span class="st">'SUBSCRIPTION_TIER_PRO_PLUS'</span>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div id="2e63208b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>raw_specs <span class="op">=</span> <span class="cf">await</span> v1beta.runtimespecs.<span class="bu">list</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>raw_specs[<span class="st">'runtimeSpecs'</span>][:<span class="dv">4</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'eligible': True, 'key': {'variant': 'VARIANT_CPU', 'accelerator': 'NONE', 'shape': 'SHAPE_HIGHMEM'}}, {'eligible': True, 'key': {'variant': 'VARIANT_CPU', 'accelerator': 'NONE', 'shape': 'SHAPE_STANDARD'}}, {'eligible': True, 'key': {'variant': 'VARIANT_GPU', 'accelerator': 'A100', 'shape': 'SHAPE_HIGHMEM'}}, {'eligible': True, 'key': {'variant': 'VARIANT_GPU', 'accelerator': 'T4', 'shape': 'SHAPE_HIGHMEM'}}]</code></pre>
+</div>
+</div>
+</section>
+<section id="choosing-hardware" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-hardware">Choosing hardware</h2>
+<p>Google identifies each runtime by <code>variant</code> (<code>VARIANT_CPU</code>, <code>VARIANT_GPU</code>, or <code>VARIANT_TPU</code>), <code>accelerator</code>, and <code>shape</code> (<code>SHAPE_STANDARD</code> or <code>SHAPE_HIGHMEM</code>). Only CPU, T4, and A100 accept <code>SHAPE_HIGHMEM</code>. L4, G4, H100, and both TPUs already allocate high-memory hosts under <code>SHAPE_STANDARD</code>.</p>
+<p>High-RAM gives CPU and T4 runtimes four times the memory and CPU cores for roughly 0.1 to 0.3 extra compute units per hour. <a href="https://AnswerDotAI.github.io/fastcolab/core.html#mk_spec"><code>mk_spec</code></a> turns it on by default whenever the hardware supports a choice. Passing a raw dict skips the lookup table so new Google hardware works immediately.</p>
+<div id="3c90618d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.568704+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.665672+00:00&quot;,&quot;total&quot;:0.09697245600000315}}" data-execution_count="5">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L35" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="mk_spec" class="level3">
+<h3 class="anchored" data-anchor-id="mk_spec">mk_spec</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_spec(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    hw:<span class="bu">str</span> <span class="op">|</span> <span class="bu">dict</span><span class="op">=</span><span class="st">'cpu'</span>, <span class="co"># Hardware alias (`'cpu'`, `'t4'`, `'l4'`, `'g4'`, `'h100'`, `'v6e1'`, ...) or raw spec dict</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    high_mem:<span class="bu">bool</span><span class="op">=</span><span class="va">True</span>, <span class="co"># Request `SHAPE_HIGHMEM` when the hardware supports a choice?</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">dict</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Build a Colab <code>runtimeSpec</code> dict from a short hardware alias or pass through a raw dict.</em></p>
+</section>
+</div>
+<div id="7dbf1e65" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>test_eq(mk_spec(<span class="st">'cpu'</span>), <span class="bu">dict</span>(variant<span class="op">=</span><span class="st">'VARIANT_CPU'</span>, accelerator<span class="op">=</span><span class="st">'NONE'</span>, shape<span class="op">=</span><span class="st">'SHAPE_HIGHMEM'</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>test_eq(mk_spec(<span class="st">'cpu'</span>, high_mem<span class="op">=</span><span class="va">False</span>), <span class="bu">dict</span>(variant<span class="op">=</span><span class="st">'VARIANT_CPU'</span>, accelerator<span class="op">=</span><span class="st">'NONE'</span>, shape<span class="op">=</span><span class="st">'SHAPE_STANDARD'</span>))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>test_eq(mk_spec(<span class="st">'g4'</span>), <span class="bu">dict</span>(variant<span class="op">=</span><span class="st">'VARIANT_GPU'</span>, accelerator<span class="op">=</span><span class="st">'G4'</span>, shape<span class="op">=</span><span class="st">'SHAPE_STANDARD'</span>))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>test_eq(mk_spec(<span class="st">'v6e1'</span>), <span class="bu">dict</span>(variant<span class="op">=</span><span class="st">'VARIANT_TPU'</span>, accelerator<span class="op">=</span><span class="st">'V6E1'</span>, shape<span class="op">=</span><span class="st">'SHAPE_STANDARD'</span>))</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>mk_spec(<span class="st">'g4'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'variant': 'VARIANT_GPU', 'accelerator': 'G4', 'shape': 'SHAPE_STANDARD'}</code></pre>
+</div>
+</div>
+</section>
+<section id="the-colab-client" class="level2">
+<h2 class="anchored" data-anchor-id="the-colab-client">The <a href="https://AnswerDotAI.github.io/fastcolab/core.html#colab"><code>Colab</code></a> client</h2>
+<p>This container holds the <code>v1beta</code> and <code>v1</code> discovery clients plus an optional <code>fastgws</code> Drive client. We define <code>__init__</code> and <code>connect</code> first, then <code>@patch</code> each operation onto it beside a live example.</p>
+<div id="dd5f1753" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.667541+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.669856+00:00&quot;,&quot;total&quot;:0.0023182420000011916}}" data-execution_count="7">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L47" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colab" class="level3">
+<h3 class="anchored" data-anchor-id="colab">Colab</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> Colab(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    v1beta, <span class="co"># `GWSApi` client for Colab `v1beta`</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    v1, <span class="co"># `GWSApi` client for Colab `v1` operations</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    creds:NoneType<span class="op">=</span><span class="va">None</span>, <span class="co"># OAuth credentials shared with Drive</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    drive:NoneType<span class="op">=</span><span class="va">None</span>, <span class="co"># Optional `GWSApi('drive', ...)` client</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Async client for Google Colab runtimes and optional Google Drive transfers.</em></p>
+</section>
+</div>
+<p>Create a <a href="https://AnswerDotAI.github.io/fastcolab/core.html#colab"><code>Colab</code></a> client reusing the credentials we already loaded:</p>
+<div id="3adf7831" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> <span class="cf">await</span> Colab.<span class="ex">connect</span>(creds<span class="op">=</span>creds)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>c</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>Colab(drive=True)</code></pre>
+</div>
+</div>
+<p><code>subscription</code> and <code>specs</code> query account entitlements and available hardware without allocating anything.</p>
+<div id="0f4fe1ca" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.670861+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.673233+00:00&quot;,&quot;total&quot;:0.002375609000011991}}" data-execution_count="9">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L77" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colab.subscription" class="level3">
+<h3 class="anchored" data-anchor-id="colab.subscription">Colab.subscription</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> subscription()<span class="op">-&gt;</span><span class="bu">str</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Return the Colab subscription tier string for the authenticated user.</em></p>
+</section>
+</div>
+<div id="ae633036" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>tier <span class="op">=</span> <span class="cf">await</span> c.subscription()</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> tier</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>tier</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'SUBSCRIPTION_TIER_PRO_PLUS'</code></pre>
+</div>
+</div>
+<p><code>specs</code> lists the runtime specs returned by <code>runtimespecs.list</code>, filtered to <code>eligible=True</code> by default.</p>
+<div id="d2084c42" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.674619+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.677254+00:00&quot;,&quot;total&quot;:0.002637312999979713}}" data-execution_count="11">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L83" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colab.specs" class="level3">
+<h3 class="anchored" data-anchor-id="colab.specs">Colab.specs</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> specs(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    eligible_only:<span class="bu">bool</span><span class="op">=</span><span class="va">True</span>, <span class="co"># Filter to specs the current account can allocate?</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>fastcore.foundation.L:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>List available Colab runtime specs as <code>AttrDict</code> entries.</em></p>
+</section>
+</div>
+<p>Inspect the first three eligible specs on our account:</p>
+<div id="5cfe432a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>avail <span class="op">=</span> <span class="cf">await</span> c.specs()</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(avail) <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>avail[:<span class="dv">3</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[{'eligible': True, 'variant': 'VARIANT_CPU', 'accelerator': 'NONE', 'shape': 'SHAPE_HIGHMEM'}, {'eligible': True, 'variant': 'VARIANT_CPU', 'accelerator': 'NONE', 'shape': 'SHAPE_STANDARD'}, {'eligible': True, 'variant': 'VARIANT_GPU', 'accelerator': 'A100', 'shape': 'SHAPE_HIGHMEM'}]</code></pre>
+</div>
+</div>
+</section>
+<section id="starting-and-listing-runtimes" class="level2">
+<h2 class="anchored" data-anchor-id="starting-and-listing-runtimes">Starting and listing runtimes</h2>
+<p><a href="https://AnswerDotAI.github.io/fastcolab/core.html#colabruntime"><code>ColabRuntime</code></a> wraps one live Colab virtual machine, exposing its <code>name</code>, hardware <code>spec</code>, Jupyter proxy <code>url</code>, <code>token</code>, and <code>headers</code>. Both <code>__repr__</code> and <code>_repr_markdown_</code> keep the proxy token out of printed output.</p>
+<div id="b6ca615a" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.680469+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.683086+00:00&quot;,&quot;total&quot;:0.0026199270000120123}}" data-execution_count="13">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L96" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime">ColabRuntime</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ColabRuntime(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    colab:__main__.Colab, <span class="co"># Parent `Colab` client</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    data:<span class="bu">dict</span>, <span class="co"># Runtime resource dict returned by `v1beta.runtimes`</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    owned:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Delete the runtime automatically on `async with` exit?</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Handle to an active Google Colab runtime and its Jupyter proxy.</em></p>
+</section>
+</div>
+<p>Creating a runtime returns a Google long-running <code>Operation</code> instead of the finished runtime. <a href="https://AnswerDotAI.github.io/fastcolab/core.html#_wait_op"><code>_wait_op</code></a> waits on <code>v1.operations.wait</code> until <code>done</code> is true. If <code>wait</code> errors or returns early, it falls back to <code>v1.operations.get</code>. Any backend error raises immediately.</p>
+<p><code>start</code> attaches a fresh UUID <code>request_id</code> for idempotent retries and waits for provisioning to finish. If the operation response omits <code>connectionInfo</code>, it fetches the runtime with <code>v1beta.runtimes.get</code>.</p>
+<div id="156e850d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.686675+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.690014+00:00&quot;,&quot;total&quot;:0.003341524000006757}}" data-execution_count="16">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L144" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colab.start" class="level3">
+<h3 class="anchored" data-anchor-id="colab.start">Colab.start</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> start(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    hw:<span class="bu">str</span> <span class="op">|</span> <span class="bu">dict</span><span class="op">=</span><span class="st">'cpu'</span>, <span class="co"># Hardware alias or raw `runtimeSpec` dict</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    high_mem:<span class="bu">bool</span><span class="op">=</span><span class="va">True</span>, <span class="co"># Request `SHAPE_HIGHMEM` when supported?</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    runtime_id:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Optional RFC-1034 runtime ID</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    version:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Optional Colab runtime image version</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    timeout:<span class="bu">float</span><span class="op">=</span><span class="dv">180</span>, <span class="co"># Seconds to wait for provisioning</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>__main__.ColabRuntime:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Provision a Colab runtime, wait until it is ready, and return a <a href="https://AnswerDotAI.github.io/fastcolab/core.html#colabruntime"><code>ColabRuntime</code></a>.</em></p>
+</section>
+</div>
+<p>Start a live high-memory CPU runtime now. We reuse this single server through the rest of the notebook for computations, file transfers, Google Drive sync, and detached job polling. The final section stops it.</p>
+<div id="31fe7978" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>rt <span class="op">=</span> <span class="cf">await</span> c.start(<span class="st">'cpu'</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>rt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p><code>ColabRuntime(r-1a19e1fe-152d-4898-b5fb-0dcc53bf4e8d)</code> (VARIANT_CPU, NONE, SHAPE_HIGHMEM), expires <code>2026-11-22T05:36:30.563937260Z</code></p>
+</div>
+</div>
+<p><code>runtimes</code>, <code>get</code>, and <code>delete</code> inspect and manage existing runtimes on the account.</p>
+<div id="c1f7cbef" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.691857+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.694443+00:00&quot;,&quot;total&quot;:0.002588818999981868}}" data-execution_count="18">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L175" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colab.delete" class="level3">
+<h3 class="anchored" data-anchor-id="colab.delete">Colab.delete</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> delete(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    name:<span class="bu">str</span>, <span class="co"># Full resource name (`runtimes/{id}`) or bare runtime ID</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    allow_missing:<span class="bu">bool</span><span class="op">=</span><span class="va">True</span>, <span class="co"># Succeed silently if the runtime is already gone?</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Delete a Colab runtime assignment.</em></p>
+</section>
+</div>
+<div id="f3f0654f" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.694537+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.696994+00:00&quot;,&quot;total&quot;:0.002458923999995477}}" data-execution_count="19">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L167" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colab.get" class="level3">
+<h3 class="anchored" data-anchor-id="colab.get">Colab.get</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> get(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    name:<span class="bu">str</span>, <span class="co"># Full resource name (`runtimes/{id}`) or bare runtime ID</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>__main__.ColabRuntime:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Fetch one active runtime with fresh <code>connectionInfo</code>.</em></p>
+</section>
+</div>
+<div id="514f8e38" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.697093+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.699558+00:00&quot;,&quot;total&quot;:0.002467106999972657}}" data-execution_count="20">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L162" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colab.runtimes" class="level3">
+<h3 class="anchored" data-anchor-id="colab.runtimes">Colab.runtimes</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> runtimes()<span class="op">-&gt;</span>fastcore.foundation.L:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>List currently active Colab runtimes.</em></p>
+</section>
+</div>
+<div id="65c69aa2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>active <span class="op">=</span> <span class="cf">await</span> c.runtimes()</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">any</span>(r.name <span class="op">==</span> rt.name <span class="cf">for</span> r <span class="kw">in</span> active)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>active</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[ColabRuntime('r-1a19e1fe-152d-4898-b5fb-0dcc53bf4e8d', NONE, SHAPE_HIGHMEM)]</code></pre>
+</div>
+</div>
+</section>
+<section id="refreshing-tokens-and-running-code" class="level2">
+<h2 class="anchored" data-anchor-id="refreshing-tokens-and-running-code">Refreshing tokens and running code</h2>
+<p>Colab proxy tokens expire about one hour after issue and return HTTP 404 once stale. <code>refresh</code> fetches fresh <code>connectionInfo</code> via <code>v1beta.runtimes.get</code> and returns the updated header dict. That matches the <code>refresh_headers</code> callback expected by <code>JupyAsyncKernelClient</code>.</p>
+<div id="f7f916ba" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.700678+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.703083+00:00&quot;,&quot;total&quot;:0.002407786999981454}}" data-execution_count="22">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L185" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.refresh" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.refresh">ColabRuntime.refresh</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> refresh()<span class="op">-&gt;</span><span class="bu">dict</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Refresh <code>connectionInfo</code> via <code>v1beta.runtimes.get</code> and return updated proxy headers.</em></p>
+</section>
+</div>
+<div id="d0550aba" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>hdrs <span class="op">=</span> <span class="cf">await</span> rt.refresh()</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> PROXY_HEADER <span class="kw">in</span> hdrs</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(hdrs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>['X-Colab-Runtime-Proxy-Token']</code></pre>
+</div>
+</div>
+<p><a href="https://AnswerDotAI.github.io/fastcolab/core.html#outs_text"><code>outs_text</code></a> pulls plain text from Jupyter nbformat output dicts (stdout, stderr, expression results, and tracebacks).</p>
+<div id="61600919" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.704736+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.707694+00:00&quot;,&quot;total&quot;:0.0029610810000235688}}" data-execution_count="24">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L191" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="outs_text" class="level3">
+<h3 class="anchored" data-anchor-id="outs_text">outs_text</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> outs_text(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    outs:<span class="bu">list</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">str</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Join stdout, stderr, execute_result text, and error tracebacks from nbformat outputs.</em></p>
+</section>
+</div>
+<p>Verify plain stream extraction:</p>
+<div id="5217c2d9" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>test_eq(outs_text([<span class="bu">dict</span>(output_type<span class="op">=</span><span class="st">'stream'</span>, text<span class="op">=</span><span class="st">'hello</span><span class="ch">\n</span><span class="st">'</span>)]), <span class="st">'hello</span><span class="ch">\n</span><span class="st">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>kernel</code> opens a <code>JupyAsyncKernelClient</code> wired with <code>X-Colab-Runtime-Proxy-Token</code> and automatic <code>refresh_headers</code>. Passing <code>kernel_id</code> attaches to an existing kernel without taking ownership. <code>exec</code> reuses a lazy default kernel on <code>rt</code> and returns rendered nbformat outputs.</p>
+<div id="2a2ee932" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.709386+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.712032+00:00&quot;,&quot;total&quot;:0.0026503330000196}}" data-execution_count="26">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L215" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.exec" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.exec">ColabRuntime.exec</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> <span class="bu">exec</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    code:<span class="bu">str</span>, <span class="co"># Python source to execute on the runtime's default kernel</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    timeout:<span class="bu">float</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Execution timeout in seconds (`None` waits indefinitely)</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Execute <code>code</code> on <code>rt</code>’s persistent kernel and return nbformat outputs.</em></p>
+</section>
+</div>
+<div id="85ebed2d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.712132+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.714629+00:00&quot;,&quot;total&quot;:0.002500185999963378}}" data-execution_count="27">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L205" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.kernel" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.kernel">ColabRuntime.kernel</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> kernel(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    kernel_id:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Existing kernel ID to attach to, or `None` to start a new kernel</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    timeout:<span class="bu">float</span><span class="op">=</span><span class="dv">60</span>, <span class="co"># Connection timeout in seconds</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>jupyasyncclient.core.JupyAsyncKernelClient:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Connect a <code>JupyAsyncKernelClient</code> to this runtime’s Jupyter proxy.</em></p>
+</section>
+</div>
+<p>Let’s inspect the remote host specs and run a small computation. Because <code>rt.exec</code> reuses the same remote kernel, variables set in one call stay in memory for the next.</p>
+<div id="415421d2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>outs <span class="op">=</span> <span class="cf">await</span> rt.<span class="bu">exec</span>(<span class="st">'''</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="st">import os, platform</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="st">with open('/proc/meminfo') as f:</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="st">    mem_gb = next(int(l.split()[1]) for l in f if l.startswith('MemTotal:')) / 1e6</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="st">xs = [i * i for i in range(1, 101)]</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="st">print(f"Python {platform.python_version()} | {os.cpu_count()} cores | </span><span class="sc">{mem_gb:.1f}</span><span class="st"> GB RAM")</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="st">sum(xs)</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="st">'''</span>)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>txt <span class="op">=</span> outs_text(outs)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'338350'</span> <span class="kw">in</span> txt</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(txt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Python 3.13.18 | 8 cores | 53.5 GB RAM
+338350
+</code></pre>
+</div>
+</div>
+<div id="3fea35e0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>outs2 <span class="op">=</span> <span class="cf">await</span> rt.<span class="bu">exec</span>(<span class="st">'len(xs), xs[-1]'</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>txt2 <span class="op">=</span> outs_text(outs2)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'(100, 10000)'</span> <span class="kw">in</span> txt2</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>txt2.strip()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'(100, 10000)'</code></pre>
+</div>
+</div>
+</section>
+<section id="transferring-files" class="level2">
+<h2 class="anchored" data-anchor-id="transferring-files">Transferring files</h2>
+<p>Colab’s proxy exposes two file endpoints. <code>/api/contents/{path}</code> speaks the Jupyter contents API (wrapped by <code>JupyAsyncFilesClient</code>), requiring chunked <code>PUT</code> uploads above 50 MB. <code>/files/{path}</code> serves raw bytes with HTTP <code>Range</code> support for binary downloads and live log tailing.</p>
+<p><code>files</code> returns a <code>JupyAsyncFilesClient</code> pointed at the runtime. <code>upload</code> builds on it to create missing parent folders one level at a time and split files larger than <code>chunk_size</code> (32 MB by default).</p>
+<div id="048b9451" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.716521+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.718899+00:00&quot;,&quot;total&quot;:0.0023808260000350856}}" data-execution_count="29">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L226" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.files" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.files">ColabRuntime.files</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> files()<span class="op">-&gt;</span>jupyasyncclient.files.JupyAsyncFilesClient:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Return a <code>JupyAsyncFilesClient</code> for this runtime’s Jupyter contents API.</em></p>
+</section>
+</div>
+<p>List the default <code>/content</code> directory on our live runtime:</p>
+<div id="6bae9864" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>[e[<span class="st">'name'</span>] <span class="cf">for</span> e <span class="kw">in</span> <span class="cf">await</span> rt.files().listing(<span class="st">'content'</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>['.config', 'sample_data']</code></pre>
+</div>
+</div>
+<p><code>upload</code> creates missing parent directories and automatically chunks files larger than <code>chunk_size</code>.</p>
+<div id="0ea090c2" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.721434+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.725054+00:00&quot;,&quot;total&quot;:0.003622486999972807}}" data-execution_count="31">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L242" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.upload" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.upload">ColabRuntime.upload</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> upload(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    src:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="bu">bytes</span>, <span class="co"># Local file path (`Path`) or raw `bytes`/`str` content to upload</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    remote_path:<span class="bu">str</span>, <span class="co"># Destination path on the runtime (e.g. `'content/data/file.csv'`)</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    chunk_size:<span class="bu">int</span><span class="op">=</span><span class="dv">33554432</span>, <span class="co"># Chunk size in bytes for multi-part uploads (must stay under 50 MB)</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Upload bytes, text, or a local file to <code>remote_path</code>, creating parent directories and chunking large files.</em></p>
+</section>
+</div>
+<p>Upload a small text file into a new subdirectory and read it back through <code>files()</code>:</p>
+<div id="9dc0583d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> rt.upload(<span class="st">'line 1</span><span class="ch">\n</span><span class="st">line 2</span><span class="ch">\n</span><span class="st">'</span>, <span class="st">'content/scratch/hello.txt'</span>)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> rt.files().read(<span class="st">'content/scratch/hello.txt'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'line 1\nline 2\n'</code></pre>
+</div>
+</div>
+<p><code>download</code> reads raw bytes from <code>/files/{path}</code> with an optional byte <code>offset</code>. On HTTP 404 it refreshes the proxy token once and retries. On HTTP 416 (when the file has not grown past <code>offset</code>) it returns empty bytes. <code>tail</code> wraps <code>download</code> for UTF-8 log files.</p>
+<div id="4d64a1d2" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.727583+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.731425+00:00&quot;,&quot;total&quot;:0.003845772999966357}}" data-execution_count="33">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L262" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.download" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.download">ColabRuntime.download</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> download(</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    remote_path:<span class="bu">str</span>, <span class="co"># Source path on the runtime (e.g. `'content/train.log'`)</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    local_path:<span class="bu">str</span> <span class="op">|</span> pathlib.Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Optional local path to write the downloaded bytes to</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    offset:<span class="bu">int</span><span class="op">=</span><span class="dv">0</span>, <span class="co"># Byte offset for HTTP `Range` reads</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">bytes</span> <span class="op">|</span> pathlib.Path:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Download raw bytes from <code>/files/{remote_path}</code>, supporting HTTP <code>Range</code> offsets and automatic token refresh.</em></p>
+</section>
+</div>
+<div id="efac477d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.732558+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.735185+00:00&quot;,&quot;total&quot;:0.002630122000027768}}" data-execution_count="35">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L291" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.tail" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.tail">ColabRuntime.tail</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> tail(</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>    remote_path:<span class="bu">str</span>, <span class="co"># Log file path on the runtime</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    offset:<span class="bu">int</span><span class="op">=</span><span class="dv">0</span>, <span class="co"># Byte offset returned by the previous `tail` call</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">tuple</span>[<span class="bu">str</span>, <span class="bu">int</span>]:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Read newly appended UTF-8 text from <code>remote_path</code> starting at <code>offset</code>, returning <code>(text, new_offset)</code>.</em></p>
+</section>
+</div>
+<div id="3fc2fc70" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> <span class="cf">await</span> rt.download(<span class="st">'content/scratch/hello.txt'</span>)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>test_eq(raw, <span class="st">b'line 1</span><span class="ch">\n</span><span class="st">line 2</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>chunk1, off <span class="op">=</span> <span class="cf">await</span> rt.tail(<span class="st">'content/scratch/hello.txt'</span>, offset<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> rt.<span class="bu">exec</span>(<span class="st">"open('/content/scratch/hello.txt', 'a').write('line 3</span><span class="ch">\\</span><span class="st">n')"</span>)</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>chunk2, off <span class="op">=</span> <span class="cf">await</span> rt.tail(<span class="st">'content/scratch/hello.txt'</span>, offset<span class="op">=</span>off)</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>test_eq((chunk1, chunk2), (<span class="st">'line 1</span><span class="ch">\n</span><span class="st">line 2</span><span class="ch">\n</span><span class="st">'</span>, <span class="st">'line 3</span><span class="ch">\n</span><span class="st">'</span>))</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>chunk2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'line 3\n'</code></pre>
+</div>
+</div>
+</section>
+<section id="importing-from-and-saving-to-google-drive" class="level2">
+<h2 class="anchored" data-anchor-id="importing-from-and-saving-to-google-drive">Importing from and saving to Google Drive</h2>
+<p>Native <code>google.colab.drive.mount</code> needs interactive browser consent and Colab’s older tunnel endpoint. Because <a href="https://AnswerDotAI.github.io/fastcolab/core.html#colab.connect"><code>Colab.connect</code></a> already holds a <code>fastgws</code> Drive client on the same OAuth credentials, <code>from_drive</code> and <code>to_drive</code> copy files directly between Google Drive and Colab without browser popups.</p>
+<p><a href="https://AnswerDotAI.github.io/fastcolab/core.html#_drive_folder_id"><code>_drive_folder_id</code></a> resolves a folder name, a slash-separated path like <code>'datasets/demo'</code>, or a raw Drive folder ID. Pass <code>create=True</code> to create missing folders along the path.</p>
+<p>Create a temporary Google Drive folder and upload a tiny CSV into it. We will import that file into our Colab runtime next.</p>
+<div id="98833ed1" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>demo_folder <span class="op">=</span> <span class="ss">f'fastcolab-nb-demo-</span><span class="sc">{</span>uuid<span class="sc">.</span>uuid4()<span class="sc">.</span><span class="bu">hex</span>[:<span class="dv">8</span>]<span class="sc">}</span><span class="ss">'</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>demo_fid <span class="op">=</span> <span class="cf">await</span> _drive_folder_id(c.drive, demo_folder, create<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>csv_bytes <span class="op">=</span> <span class="st">b'city,temp_c</span><span class="ch">\n</span><span class="st">Sydney,22</span><span class="ch">\n</span><span class="st">Brisbane,26</span><span class="ch">\n</span><span class="st">Melbourne,18</span><span class="ch">\n</span><span class="st">'</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> c.drive.files.upload(media<span class="op">=</span>csv_bytes, name<span class="op">=</span><span class="st">'readings.csv'</span>, parents<span class="op">=</span>[demo_fid], fields<span class="op">=</span><span class="st">'id, name'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>{<span class="st">'id'</span>: <span class="st">'1LlveMseDnT66q0YMQoO514WcMGUOh0te'</span>, <span class="st">'name'</span>: <span class="st">'readings.csv'</span>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<p><code>from_drive</code> lists non-trashed files in the Drive folder, downloads each file’s bytes, and uploads them into <code>remote_dir</code> on the runtime.</p>
+<div id="f5df02c2" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.740030+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.743681+00:00&quot;,&quot;total&quot;:0.003653433000010864}}" data-execution_count="38">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L325" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.from_drive" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.from_drive">ColabRuntime.from_drive</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> from_drive(</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>    folder:<span class="bu">str</span>, <span class="co"># Google Drive folder name, path, or folder ID</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    remote_dir:<span class="bu">str</span><span class="op">=</span><span class="st">'content/data'</span>, <span class="co"># Destination directory on the Colab runtime</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    names:<span class="bu">list</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Optional subset of filenames to copy (defaults to all non-folder files)</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>fastcore.foundation.L:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Copy files from a Google Drive folder onto this Colab runtime, returning uploaded remote paths.</em></p>
+</section>
+</div>
+<p>Pull the demo folder into <code>/content/data</code>:</p>
+<div id="9710aee2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>imported <span class="op">=</span> <span class="cf">await</span> rt.from_drive(demo_folder, <span class="st">'content/data'</span>)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>test_eq(imported, [<span class="st">'content/data/readings.csv'</span>])</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>imported</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>['content/data/readings.csv']</code></pre>
+</div>
+</div>
+<p>Now let’s process <code>/content/data/readings.csv</code> on the Colab server and write <code>/content/data/summary.json</code>, then save that result back to our Drive folder with <code>to_drive</code>.</p>
+<div id="a035fb3f" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.745679+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.749183+00:00&quot;,&quot;total&quot;:0.003507333000015933}}" data-execution_count="40">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L348" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.to_drive" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.to_drive">ColabRuntime.to_drive</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> to_drive(</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>    remote_path:<span class="bu">str</span>, <span class="co"># File path on the Colab runtime to save</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    folder:<span class="bu">str</span>, <span class="co"># Destination Google Drive folder name, path, or folder ID</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>    name:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Filename in Drive (defaults to the basename of `remote_path`)</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    create_folder:<span class="bu">bool</span><span class="op">=</span><span class="va">True</span>, <span class="co"># Create the destination Drive folder if missing?</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">dict</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Copy a file from this Colab runtime into a Google Drive folder, updating in place if it already exists.</em></p>
+</section>
+</div>
+<div id="9e96c8e7" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> rt.<span class="bu">exec</span>(<span class="st">'''</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="st">import csv, json</span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="st">with open('/content/data/readings.csv') as f: rows = list(csv.DictReader(f))</span></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="st">temps = [float(r['temp_c']) for r in rows]</span></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="st">summary = dict(count=len(temps), mean=sum(temps)/len(temps), min=min(temps), max=max(temps))</span></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="st">with open('/content/data/summary.json', 'w') as f: json.dump(summary, f)</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a><span class="st">summary</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a><span class="st">'''</span>)</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>saved <span class="op">=</span> <span class="cf">await</span> rt.to_drive(<span class="st">'content/data/summary.json'</span>, demo_folder)</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>saved</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>{<span class="st">'id'</span>: <span class="st">'1hAcPv-5zc8sHLAU9nYrAyJlSOff-VOWI'</span>, <span class="st">'name'</span>: <span class="st">'summary.json'</span>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<p>Read <code>summary.json</code> directly back from Google Drive to verify the saved file, then remove our temporary demo folder.</p>
+<div id="760e2150" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>resp <span class="op">=</span> <span class="cf">await</span> c.drive.files.get(file_id<span class="op">=</span>saved[<span class="st">'id'</span>], alt<span class="op">=</span><span class="st">'media'</span>, raw_<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> json.loads(resp.content)</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>test_eq(result, <span class="bu">dict</span>(count<span class="op">=</span><span class="dv">3</span>, mean<span class="op">=</span><span class="fl">22.0</span>, <span class="bu">min</span><span class="op">=</span><span class="fl">18.0</span>, <span class="bu">max</span><span class="op">=</span><span class="fl">26.0</span>))</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> c.drive.files.delete(file_id<span class="op">=</span>demo_fid)</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'count': 3, 'mean': 22.0, 'min': 18.0, 'max': 26.0}</code></pre>
+</div>
+</div>
+</section>
+<section id="running-long-detached-jobs" class="level2">
+<h2 class="anchored" data-anchor-id="running-long-detached-jobs">Running long detached jobs</h2>
+<p>Colab’s ~90-minute idle timeout checks whether the Jupyter kernel is busy. Spawning a <code>nohup</code> background process and letting the cell exit leaves the kernel idle, risking teardown.</p>
+<p><code>launch</code> avoids that by running your code inside a dedicated kernel cell. A small wrapper redirects stdout and stderr to a log file and writes the exit code to a second file when finished. Once the kernel reports <code>busy</code>, <code>launch</code> closes the local WebSocket (<code>aclose()</code>) while the remote cell keeps running.</p>
+<p><a href="https://AnswerDotAI.github.io/fastcolab/core.html#colabjob"><code>ColabJob</code></a> tracks that detached run over plain HTTP. It refreshes expired proxy tokens automatically and reads new log bytes via HTTP <code>Range</code>.</p>
+<div id="472af279" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.751100+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.753640+00:00&quot;,&quot;total&quot;:0.0025423889999842686}}" data-execution_count="42">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L383" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabjob" class="level3">
+<h3 class="anchored" data-anchor-id="colabjob">ColabJob</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ColabJob(</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>    rt:__main__.ColabRuntime, <span class="co"># Runtime hosting the job</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>    kernel_id:<span class="bu">str</span>, <span class="co"># Remote Jupyter kernel ID executing the job</span></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>    log:<span class="bu">str</span>, <span class="co"># Log file path on the runtime (without leading slash)</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>    exit_file:<span class="bu">str</span>, <span class="co"># Exit-code file path on the runtime (without leading slash)</span></span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Handle to a detached cell running inside a Colab kernel, polled over HTTP.</em></p>
+</section>
+</div>
+<p>Check how <a href="https://AnswerDotAI.github.io/fastcolab/core.html#colabjob"><code>ColabJob</code></a> renders before launching a real run:</p>
+<div id="7034efaa" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>ColabJob(rt, <span class="st">'k-demo'</span>, <span class="st">'content/job.log'</span>, <span class="st">'content/job.exit'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ColabJob('k-demo', log='content/job.log')</code></pre>
+</div>
+</div>
+<p><code>launch</code> clears any stale log or exit files and starts a dedicated kernel. Once the kernel sends <code>status: busy</code>, it closes the local WebSocket while the cell keeps running on Colab.</p>
+<div id="46372ac0" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.756153+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.759535+00:00&quot;,&quot;total&quot;:0.0033842880000065634}}" data-execution_count="44">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L399" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.launch" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.launch">ColabRuntime.launch</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> launch(</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>    code:<span class="bu">str</span>, <span class="co"># Python source to execute in a dedicated detached kernel</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>    log:<span class="bu">str</span><span class="op">=</span><span class="st">'content/job.log'</span>, <span class="co"># Remote log file path</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>    exit_file:<span class="bu">str</span><span class="op">=</span><span class="st">'content/job.exit'</span>, <span class="co"># Remote exit-code file path</span></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>__main__.ColabJob:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Submit <code>code</code> to a dedicated kernel, close the local WebSocket once busy, and return a <a href="https://AnswerDotAI.github.io/fastcolab/core.html#colabjob"><code>ColabJob</code></a>.</em></p>
+</section>
+</div>
+<p>Launch a 1.5-second detached job on a dedicated kernel:</p>
+<div id="798f8933" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>job <span class="op">=</span> <span class="cf">await</span> rt.launch(<span class="st">'''</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="st">import time</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="st">for i in range(3):</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a><span class="st">    print(f'step </span><span class="sc">{i}</span><span class="st">', flush=True)</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a><span class="st">    time.sleep(0.5)</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a><span class="st">'''</span>)</span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>job</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ColabJob('d0c349a7-8b35-40af-bcb7-591ba5a94cc6', log='content/job.log')</code></pre>
+</div>
+</div>
+<p><code>tail</code> pulls newly appended log bytes over HTTP <code>Range</code>. <code>status</code> checks the exit file first, then queries <code>/api/kernels/{kernel_id}</code> (refreshing the proxy token once on HTTP 404).</p>
+<div id="0bb66d5f" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.761736+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.764810+00:00&quot;,&quot;total&quot;:0.003077175000044008}}" data-execution_count="46">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L431" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabjob.status" class="level3">
+<h3 class="anchored" data-anchor-id="colabjob.status">ColabJob.status</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> status()<span class="op">-&gt;</span><span class="bu">tuple</span>[<span class="bu">str</span>, <span class="bu">int</span> <span class="op">|</span> <span class="va">None</span>]:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Return <code>(state, exit_code)</code> where <code>state</code> is <code>'running'</code>, <code>'done'</code>, <code>'failed'</code>, <code>'idle'</code>, or <code>'gone'</code>.</em></p>
+</section>
+</div>
+<div id="944ce4e5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.764896+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.767111+00:00&quot;,&quot;total&quot;:0.00221783099999584}}" data-execution_count="47">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L425" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabjob.tail" class="level3">
+<h3 class="anchored" data-anchor-id="colabjob.tail">ColabJob.tail</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> tail()<span class="op">-&gt;</span><span class="bu">str</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Return newly written log text since the last <code>tail</code> call.</em></p>
+</section>
+</div>
+<div id="11d60260" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>st, _ <span class="op">=</span> <span class="cf">await</span> job.status()</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>st</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'done'</code></pre>
+</div>
+</div>
+<p><code>wait</code> polls <code>tail</code> and <code>status</code> until the exit file appears, invoking an optional <code>on_log</code> callback for each new chunk.</p>
+<div id="9d272d5b" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.768644+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.771428+00:00&quot;,&quot;total&quot;:0.0027863069999511936}}" data-execution_count="49">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L449" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabjob.wait" class="level3">
+<h3 class="anchored" data-anchor-id="colabjob.wait">ColabJob.wait</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> wait(</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>    poll:<span class="bu">float</span><span class="op">=</span><span class="fl">1.0</span>, <span class="co"># Seconds between status polls</span></span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>    on_log:NoneType<span class="op">=</span><span class="va">None</span>, <span class="co"># Optional callback receiving each newly tailed log string</span></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">int</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Poll until the job writes its exit file (or the kernel disappears), returning the exit code.</em></p>
+</section>
+</div>
+<div id="99296634" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>seen <span class="op">=</span> []</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>rc <span class="op">=</span> <span class="cf">await</span> job.wait(poll<span class="op">=</span><span class="fl">0.4</span>, on_log<span class="op">=</span>seen.append)</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>test_eq(rc, <span class="dv">0</span>)</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>full_log <span class="op">=</span> <span class="st">''</span>.join(seen)</span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>test_eq(full_log.splitlines(), [<span class="st">'step 0'</span>, <span class="st">'step 1'</span>, <span class="st">'step 2'</span>])</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>full_log</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'step 0\nstep 1\nstep 2\n'</code></pre>
+</div>
+</div>
+</section>
+<section id="stopping-runtimes-and-context-manager-cleanup" class="level2">
+<h2 class="anchored" data-anchor-id="stopping-runtimes-and-context-manager-cleanup">Stopping runtimes and context-manager cleanup</h2>
+<p>Compute units burn whenever a runtime exists, including idle periods. <code>stop</code> closes any open local kernel socket and deletes the runtime assignment. Using <code>async with await c.start('cpu') as rt:</code> calls <code>stop</code> automatically on exit. Attached runtimes (<code>owned=False</code>) only close their local socket.</p>
+<div id="6e773b7e" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.773131+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.775566+00:00&quot;,&quot;total&quot;:0.002437912999994296}}" data-execution_count="51">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L483" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.__aexit__" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.__aexit__">ColabRuntime.__aexit__</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb70"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> <span class="fu">__aexit__</span>(</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>exc</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</div>
+<div id="5cc49767" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.775661+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.777851+00:00&quot;,&quot;total&quot;:0.0021921620000284747}}" data-execution_count="52">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L480" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.__aenter__" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.__aenter__">ColabRuntime.__aenter__</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> <span class="fu">__aenter__</span>():</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</div>
+<div id="183dc734" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-11-27T22:56:10.777943+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-11-27T22:56:10.780588+00:00&quot;,&quot;total&quot;:0.00264741800003776}}" data-execution_count="53">
+<hr>
+<p><a href="https://github.com/AnswerDotAI/fastcolab/blob/main/fastcolab/core.py#L468" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="colabruntime.stop" class="level3">
+<h3 class="anchored" data-anchor-id="colabruntime.stop">ColabRuntime.stop</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> stop(</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>    allow_missing:<span class="bu">bool</span><span class="op">=</span><span class="va">True</span>, <span class="co"># Ignore already-deleted runtimes?</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Close any local kernel socket and delete this Colab runtime.</em></p>
+</section>
+</div>
+<p>Let’s stop the CPU runtime we created earlier and confirm no runtimes remain active on the account.</p>
+<div id="c6737560" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> rt.stop()</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>remaining <span class="op">=</span> <span class="cf">await</span> c.runtimes()</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="kw">not</span> <span class="bu">any</span>(r.name <span class="op">==</span> rt.name <span class="cf">for</span> r <span class="kw">in</span> remaining)</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>remaining</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>[]</code></pre>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/AnswerDotAI\.github\.io\/fastcolab");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/AnswerDotAI/fastcolab/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
